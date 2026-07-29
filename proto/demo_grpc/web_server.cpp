@@ -34,6 +34,12 @@
 
 namespace {
 
+#if MHD_VERSION >= 0x00097002
+using mhd_result = MHD_Result;
+#else
+using mhd_result = int;
+#endif
+
 struct connection_info_struct {
   int connectiontype;
   WebServer *web_server;
@@ -101,10 +107,11 @@ int send_page(struct MHD_Connection *connection, const char *page) {
   return ret;
 }
 
-int iterate_post(void *coninfo_cls, enum MHD_ValueKind kind, const char *key,
-                 const char *filename, const char *content_type,
-                 const char *transfer_encoding, const char *data, uint64_t off,
-                 size_t size) {
+mhd_result iterate_post(void *coninfo_cls, enum MHD_ValueKind kind,
+                        const char *key, const char *filename,
+                        const char *content_type,
+                        const char *transfer_encoding, const char *data,
+                        uint64_t off, size_t size) {
   connection_info_struct *con_info = static_cast<connection_info_struct *>(
       coninfo_cls);
   if (!strncmp(key, "counter_name", sizeof "counter_name")) {
@@ -177,10 +184,10 @@ int perform_requested_ops_and_respond(struct MHD_Connection *connection,
   return send_page(connection, generate_page(con_info->web_server, con_info));
 }
 
-int answer_to_connection(void *cls, struct MHD_Connection *connection,
-                         const char *url, const char *method,
-                         const char *version, const char *upload_data,
-                         size_t *upload_data_size, void **con_cls) {
+mhd_result answer_to_connection(void *cls, struct MHD_Connection *connection,
+                                const char *url, const char *method,
+                                const char *version, const char *upload_data,
+                                size_t *upload_data_size, void **con_cls) {
   WebServer *server = static_cast<WebServer *>(cls);
   if (!*con_cls) {
     struct connection_info_struct *con_info;
