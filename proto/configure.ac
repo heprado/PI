@@ -72,7 +72,7 @@ AC_ARG_WITH([bmv2],
 
 AM_CONDITIONAL([WITH_BMV2], [test "$want_bmv2" = yes])
 
-with_proto_demo=yes
+with_proto_demo=no
 AC_CHECK_LIB([microhttpd], [MHD_start_daemon], [], [
     AC_MSG_WARN([microhttpd library not found, will not compile demo])
     with_proto_demo=no
